@@ -27,17 +27,18 @@ const deckDatabase = [
   { name: 'Gol.D.Roger', colors: ['Vermelho', 'Roxo'], strategy: 'Direto', stance: 'Ofensivo', length: 'Média', crew: 'Piratas do Roger', game_stage: 'Early Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP09-001.png' }
 ];
 
-export default function App() {
+// Mudei para "Index" para o Expo Router reconhecer como página principal
+export default function Index() {
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState({});
+  const [answers, setAnswers] = useState<any>({});
 
-  const handleNext = (key, value) => {
+  const handleNext = (key: string, value: string) => {
     setAnswers({ ...answers, [key]: value });
     setStep(step + 1);
   };
 
   const getWinner = () => {
-    let bestMatch = null;
+    let bestMatch: any = null;
     let topScore = -1;
     const color1 = answers.color1;
     const color2 = answers.color2;
@@ -45,7 +46,6 @@ export default function App() {
 
     deckDatabase.forEach(deck => {
       let score = 0;
-      // PESO ABSOLUTO NA COR (Prioridade 1)
       if (isMono) {
         if (deck.colors.length === 1 && deck.colors.includes(color1)) score += 100;
         else if (deck.colors.includes(color1)) score += 40;
@@ -54,7 +54,6 @@ export default function App() {
         else if (deck.colors.includes(color1)) score += 50;
         else if (deck.colors.includes(color2)) score += 30;
       }
-      // CRITÉRIOS DE ESTILO (Prioridade 2)
       if (deck.strategy === answers.strategy) score += 5;
       if (deck.game_stage === answers.game_stage) score += 5;
       if (deck.stance === answers.stance) score += 5;
@@ -68,7 +67,12 @@ export default function App() {
     return { deck: bestMatch, userColor: color1 };
   };
 
-  const renderSplitName = (name, colors) => {
+  const getColorHex = (c: string) => {
+    const map: any = { 'Vermelho': '#FF3B30', 'Azul': '#007AFF', 'Amarelo': '#FFCC00', 'Preto': '#999', 'Roxo': '#AF52DE', 'Verde': '#4CD964' };
+    return map[c] || '#FFF';
+  };
+
+  const renderSplitName = (name: string, colors: string[]) => {
     if (colors.length === 1) {
       return <Text style={[styles.title, { color: getColorHex(colors[0]) }]}>{name}</Text>;
     }
@@ -112,7 +116,7 @@ export default function App() {
       <View style={styles.container}>
         <Text style={styles.question}>{current.q}</Text>
         <ScrollView style={{ width: '100%' }}>
-          {current.options.map((opt) => (
+          {current.options.map((opt: any) => (
             <TouchableOpacity key={opt.t || opt} style={[styles.card, opt.c && { borderColor: getColorHex(opt.c) }]} onPress={() => handleNext(current.key, opt.c || opt)}>
               <Text style={styles.cardText}>{opt.t || opt}</Text>
             </TouchableOpacity>
@@ -132,7 +136,7 @@ export default function App() {
            <Text style={styles.tag}>{result.deck.strategy}</Text>
            <Text style={styles.tag}>{result.deck.game_stage}</Text>
         </View>
-        <Image source={{ uri: result.deck.img }} style={styles.cardImg} />
+        <Image source={{ uri: result.deck.img }} style={styles.cardImg} resizeMode="contain" />
         <View style={styles.quoteBox}><Text style={styles.quote}>"Em breve o depoimento aqui!"</Text></View>
         <TouchableOpacity style={styles.btn} onPress={() => setStep(0)}><Text style={styles.btnText}>RECOMEÇAR</Text></TouchableOpacity>
       </ScrollView>
@@ -140,14 +144,9 @@ export default function App() {
   }
 }
 
-const getColorHex = (c) => {
-  const map = { 'Vermelho': '#FF3B30', 'Azul': '#007AFF', 'Amarelo': '#FFCC00', 'Preto': '#999', 'Roxo': '#AF52DE', 'Verde': '#4CD964' };
-  return map[c] || '#FFF';
-};
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#121212', alignItems: 'center', justifyContent: 'center', padding: 20, paddingTop: 60 },
-  splashContainer: { flex: 1, backgroundColor: '#ED1D24' },
+  splashContainer: { flex: 1, backgroundColor: '#ED1D24', height: '100vh' as any }, // Ajuste para web
   fullBtn: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   hatCircle: { width: 260, height: 260, backgroundColor: '#FFCC00', borderRadius: 130, justifyContent: 'center', alignItems: 'center', borderWidth: 8, borderColor: '#FFF', position: 'relative', overflow: 'hidden' },
   hatRibbon: { position: 'absolute', bottom: 40, width: '100%', height: 25, backgroundColor: '#ED1D24' },
