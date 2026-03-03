@@ -6,25 +6,24 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ED1D24"
+      "backgroundColor": "#121212"
     },
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.felipe.deckfinder"
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ED1D24"
-      },
-      "package": "com.felipe.deckfinder"
+        "backgroundColor": "#121212"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "static",
       "shortName": "DeckFinder",
       "backgroundColor": "#121212",
       "themeColor": "#ED1D24",
