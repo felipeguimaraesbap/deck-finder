@@ -3,31 +3,31 @@ import { Dimensions, Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOp
 
 const { width } = Dimensions.get('window');
 
+// Banco de dados atualizado com os códigos que você conferiu
 const deckDatabase = [
-  { name: 'Imu', colors: ['Preto'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Governo Mundial', game_stage: 'Late Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP09-093.png' },
-  { name: 'Dracule Mihawk', colors: ['Verde'], strategy: 'Direto', stance: 'Ofensivo', length: 'Média', crew: 'Cross Guild', game_stage: 'Early Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP01-070.png' },
-  { name: 'Portgas.D.Ace', colors: ['Vermelho', 'Azul'], strategy: 'Direto', stance: 'Ofensivo', length: 'Curta', crew: 'Piratas do Barba Branca', game_stage: 'Early Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP03-001.png' },
-  { name: 'Boa Hancock', colors: ['Azul', 'Amarelo'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Outro', game_stage: 'Late Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP07-038.png' },
-  { name: 'Donquixote Doflamingo', colors: ['Roxo'], strategy: 'Combo', stance: 'Ofensivo', length: 'Média', crew: 'Outro', game_stage: 'Late Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP01-060.png' },
-  { name: 'Gecko Moria', colors: ['Preto', 'Amarelo'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Outro', game_stage: 'Late Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP06-086.png' },
-  { name: 'Nefeltari Vivi', colors: ['Vermelho', 'Azul'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Outro', game_stage: 'Late Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP04-001.png' },
-  { name: 'Nami', colors: ['Azul'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Chapéus de Palha', game_stage: 'Late Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP03-040.png' },
-  { name: 'Jewelry Bonney', colors: ['Amarelo'], strategy: 'Direto', stance: 'Ofensivo', length: 'Média', crew: 'Outro', game_stage: 'Early Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP07-019.png' },
-  { name: 'Charlotte Katakuri', colors: ['Amarelo'], strategy: 'Direto', stance: 'Ofensivo', length: 'Média', crew: 'Piratas da Big Mom', game_stage: 'Early Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP03-099.png' },
-  { name: 'Uta', colors: ['Verde', 'Roxo'], strategy: 'Combo', stance: 'Ofensivo', length: 'Média', crew: 'Piratas do Ruivo', game_stage: 'Early Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP06-001.png' },
-  { name: 'Luffy (ST13)', colors: ['Preto', 'Amarelo'], strategy: 'Combo', stance: 'Ofensivo', length: 'Média', crew: 'Chapéus de Palha', game_stage: 'Late Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/ST13-003.png' },
-  { name: 'Perona', colors: ['Preto', 'Verde'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Outro', game_stage: 'Late Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP06-021.png' },
-  { name: 'Yamato', colors: ['Verde', 'Amarelo'], strategy: 'Direto', stance: 'Ofensivo', length: 'Curta', crew: 'Outro', game_stage: 'Early Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP06-022.png' },
-  { name: 'Trafalgar Law (RP)', colors: ['Vermelho', 'Roxo'], strategy: 'Combo', stance: 'Ofensivo', length: 'Média', crew: 'Piratas Heart', game_stage: 'Early Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP05-069.png' },
-  { name: 'Rob Lucci', colors: ['Preto'], strategy: 'Combo', stance: 'Ofensivo', length: 'Média', crew: 'Governo Mundial', game_stage: 'Late Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP07-079.png' },
-  { name: 'Shanks', colors: ['Vermelho'], strategy: 'Direto', stance: 'Ofensivo', length: 'Curta', crew: 'Piratas do Ruivo', game_stage: 'Early Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP01-001.png' },
-  { name: 'Belo Betty', colors: ['Vermelho', 'Amarelo'], strategy: 'Direto', stance: 'Ofensivo', length: 'Curta', crew: 'Revolucionários', game_stage: 'Early Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP05-002.png' },
-  { name: 'Enel', colors: ['Amarelo'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Outro', game_stage: 'Late Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP05-060.png' },
-  { name: 'Sir Crocodile', colors: ['Preto'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Cross Guild', game_stage: 'Late Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP04-058.png' },
-  { name: 'Gol.D.Roger', colors: ['Vermelho', 'Roxo'], strategy: 'Direto', stance: 'Ofensivo', length: 'Média', crew: 'Piratas do Roger', game_stage: 'Early Game', img: 'https://limitless-tcg.s3.us-central-1.amazonaws.com/one-piece/cards/OP09-001.png' }
+  { name: 'Imu', colors: ['Preto'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Governo Mundial', game_stage: 'Late Game', codigo: 'OP13-079' },
+  { name: 'Dracule Mihawk', colors: ['Verde'], strategy: 'Direto', stance: 'Ofensivo', length: 'Média', crew: 'Cross Guild', game_stage: 'Early Game', codigo: 'OP14-020' },
+  { name: 'Portgas.D.Ace', colors: ['Vermelho', 'Azul'], strategy: 'Direto', stance: 'Ofensivo', length: 'Curta', crew: 'Piratas do Barba Branca', game_stage: 'Early Game', codigo: 'OP13-002' },
+  { name: 'Boa Hancock', colors: ['Azul', 'Amarelo'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Outro', game_stage: 'Late Game', codigo: 'OP14-041' },
+  { name: 'Donquixote Doflamingo', colors: ['Roxo'], strategy: 'Combo', stance: 'Ofensivo', length: 'Média', crew: 'Outro', game_stage: 'Late Game', codigo: 'OP14-060' },
+  { name: 'Gecko Moria', colors: ['Preto', 'Amarelo'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Outro', game_stage: 'Late Game', codigo: 'OP14-080' },
+  { name: 'Nefeltari Vivi', colors: ['Vermelho', 'Azul'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Outro', game_stage: 'Late Game', codigo: 'EB03-001' },
+  { name: 'Nami', colors: ['Azul'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Chapéus de Palha', game_stage: 'Late Game', codigo: 'OP11-041' },
+  { name: 'Jewelry Bonney', colors: ['Amarelo'], strategy: 'Direto', stance: 'Ofensivo', length: 'Média', crew: 'Outro', game_stage: 'Early Game', codigo: 'OP13-100' },
+  { name: 'Charlotte Katakuri', colors: ['Amarelo'], strategy: 'Direto', stance: 'Ofensivo', length: 'Média', crew: 'Piratas da Big Mom', game_stage: 'Early Game', codigo: 'OP11-062' },
+  { name: 'Uta', colors: ['Verde', 'Roxo'], strategy: 'Combo', stance: 'Ofensivo', length: 'Média', crew: 'Piratas do Ruivo', game_stage: 'Early Game', codigo: 'OP06-001' },
+  { name: 'Luffy (ST13)', colors: ['Preto', 'Amarelo'], strategy: 'Combo', stance: 'Ofensivo', length: 'Média', crew: 'Chapéus de Palha', game_stage: 'Late Game', codigo: 'ST13-003' },
+  { name: 'Perona', colors: ['Preto', 'Verde'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Outro', game_stage: 'Late Game', codigo: 'OP06-021' },
+  { name: 'Yamato', colors: ['Verde', 'Amarelo'], strategy: 'Direto', stance: 'Ofensivo', length: 'Curta', crew: 'Outro', game_stage: 'Early Game', codigo: 'OP06-022' },
+  { name: 'Trafalgar Law (RP)', colors: ['Vermelho', 'Roxo'], strategy: 'Combo', stance: 'Ofensivo', length: 'Média', crew: 'Piratas Heart', game_stage: 'Early Game', codigo: 'ST10-001' },
+  { name: 'Rob Lucci', colors: ['Preto'], strategy: 'Combo', stance: 'Ofensivo', length: 'Média', crew: 'Governo Mundial', game_stage: 'Late Game', codigo: 'OP07-079' },
+  { name: 'Shanks', colors: ['Vermelho'], strategy: 'Direto', stance: 'Ofensivo', length: 'Curta', crew: 'Piratas do Ruivo', game_stage: 'Early Game', codigo: 'OP09-001' },
+  { name: 'Belo Betty', colors: ['Vermelho', 'Amarelo'], strategy: 'Direto', stance: 'Ofensivo', length: 'Curta', crew: 'Revolucionários', game_stage: 'Early Game', codigo: 'OP05-002' },
+  { name: 'Enel', colors: ['Amarelo'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Outro', game_stage: 'Late Game', codigo: 'OP05-098' },
+  { name: 'Sir Crocodile', colors: ['Preto'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Cross Guild', game_stage: 'Late Game', codigo: 'OP14-079' },
+  { name: 'Gol.D.Roger', colors: ['Vermelho', 'Roxo'], strategy: 'Direto', stance: 'Ofensivo', length: 'Média', crew: 'Piratas do Roger', game_stage: 'Early Game', codigo: 'OP13-003' }
 ];
 
-// Mudei para "Index" para o Expo Router reconhecer como página principal
 export default function Index() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<any>({});
@@ -68,7 +68,7 @@ export default function Index() {
   };
 
   const getColorHex = (c: string) => {
-    const map: any = { 'Vermelho': '#FF3B30', 'Azul': '#007AFF', 'Amarelo': '#FFCC00', 'Preto': '#999', 'Roxo': '#AF52DE', 'Verde': '#4CD964' };
+    const map: any = { 'Vermelho': '#FF3B30', 'Azul': '#007AFF', 'Amarelo': '#FFCC00', 'Preto': '#FFF', 'Roxo': '#AF52DE', 'Verde': '#4CD964' };
     return map[c] || '#FFF';
   };
 
@@ -128,17 +128,37 @@ export default function Index() {
 
   if (step === 7) {
     const result = getWinner();
+    // Montando a URL dinâmica com o link da Egman Events que conversamos
+    const imageUrl = `https://deckbuilder.egmanevents.com/card_images/optcg/${result.deck.codigo}.webp`;
+
     return (
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.subtitle}>Sua Cor Ideal: <Text style={{color: getColorHex(result.userColor), fontWeight: 'bold'}}>{result.userColor}</Text></Text>
+        
         {renderSplitName(result.deck.name, result.deck.colors)}
+        
         <View style={styles.tagRow}>
            <Text style={styles.tag}>{result.deck.strategy}</Text>
            <Text style={styles.tag}>{result.deck.game_stage}</Text>
+           <Text style={styles.tag}>{result.deck.crew}</Text>
         </View>
-        <Image source={{ uri: result.deck.img }} style={styles.cardImg} resizeMode="contain" />
-        <View style={styles.quoteBox}><Text style={styles.quote}>"Em breve o depoimento aqui!"</Text></View>
-        <TouchableOpacity style={styles.btn} onPress={() => setStep(0)}><Text style={styles.btnText}>RECOMEÇAR</Text></TouchableOpacity>
+
+        {/* EXIBIÇÃO DA IMAGEM ATUALIZADA */}
+        <View style={styles.imageShadow}>
+          <Image 
+            source={{ uri: imageUrl }} 
+            style={styles.cardImg} 
+            resizeMode="contain" 
+          />
+        </View>
+
+        <View style={styles.quoteBox}>
+          <Text style={styles.quote}>"O Rei dos Piratas é aquele que tem mais liberdade no mar!"</Text>
+        </View>
+
+        <TouchableOpacity style={styles.btn} onPress={() => setStep(0)}>
+          <Text style={styles.btnText}>RECOMEÇAR</Text>
+        </TouchableOpacity>
       </ScrollView>
     );
   }
@@ -146,7 +166,7 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#121212', alignItems: 'center', justifyContent: 'center', padding: 20, paddingTop: 60 },
-  splashContainer: { flex: 1, backgroundColor: '#ED1D24', height: '100vh' as any }, // Ajuste para web
+  splashContainer: { flex: 1, backgroundColor: '#ED1D24' }, 
   fullBtn: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   hatCircle: { width: 260, height: 260, backgroundColor: '#FFCC00', borderRadius: 130, justifyContent: 'center', alignItems: 'center', borderWidth: 8, borderColor: '#FFF', position: 'relative', overflow: 'hidden' },
   hatRibbon: { position: 'absolute', bottom: 40, width: '100%', height: 25, backgroundColor: '#ED1D24' },
@@ -158,9 +178,16 @@ const styles = StyleSheet.create({
   cardText: { color: '#FFF', textAlign: 'center', fontSize: 18, fontWeight: 'bold' },
   title: { fontSize: 34, fontWeight: 'bold', textAlign: 'center', marginVertical: 5 },
   subtitle: { color: '#FFF', fontSize: 18, marginBottom: 5 },
-  tagRow: { flexDirection: 'row', marginBottom: 15 },
-  tag: { backgroundColor: '#333', color: '#FFCC00', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 5, marginHorizontal: 5, fontSize: 12, fontWeight: 'bold' },
-  cardImg: { width: 220, height: 310, borderRadius: 10, marginBottom: 20 },
+  tagRow: { flexDirection: 'row', marginBottom: 15, flexWrap: 'wrap', justifyContent: 'center' },
+  tag: { backgroundColor: '#333', color: '#FFCC00', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 5, marginHorizontal: 5, marginVertical: 2, fontSize: 12, fontWeight: 'bold' },
+  imageShadow: {
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+  },
+  cardImg: { width: 240, height: 340, borderRadius: 12, marginBottom: 20 },
   quoteBox: { backgroundColor: '#222', padding: 15, borderRadius: 10, borderLeftWidth: 4, borderLeftColor: '#FFCC00', width: '100%' },
   quote: { color: '#CCC', fontStyle: 'italic', textAlign: 'center' },
   btn: { backgroundColor: '#FFCC00', padding: 15, borderRadius: 30, marginTop: 25, width: 200, alignItems: 'center' },
