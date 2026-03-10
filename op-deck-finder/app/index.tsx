@@ -3,7 +3,7 @@ import { Animated, Dimensions, Easing, Image, ScrollView, StatusBar, StyleSheet,
 
 const { width, height } = Dimensions.get('window');
 
-// Banco de dados atualizado
+// Banco de dados (Mantido igual)
 const deckDatabase = [
   { name: 'Imu', colors: ['Preto'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Governo Mundial', game_stage: 'Late Game', codigo: 'OP13-079' },
   { name: 'Dracule Mihawk', colors: ['Verde'], strategy: 'Direto', stance: 'Ofensivo', length: 'Média', crew: 'Cross Guild', game_stage: 'Early Game', codigo: 'OP14-020' },
@@ -32,44 +32,38 @@ export default function Index() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<any>({});
   const [isTransitioning, setIsTransitioning] = useState(false);
-
-  // Referência para animação (0 = invisível, 1 = visível/impacto)
   const punchAnim = useRef(new Animated.Value(0)).current;
 
   const runPunchAnimation = (callback: () => void) => {
     setIsTransitioning(true);
-
-    Animated.sequence([
-      // Impacto rápido
-      Animated.timing(punchAnim, {
-        toValue: 1,
-        duration: 120,
-        useNativeDriver: true,
-        easing: Easing.linear,
-      }),
-      // Frame do soco (delay curto)
-      Animated.delay(80),
-      // Troca os dados da pergunta por trás do soco
-      Animated.callback(() => {
-        callback();
-      }),
-      // Limpa a tela
-      Animated.timing(punchAnim, {
-        toValue: 0,
-        duration: 120,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      setIsTransitioning(false);
+    
+    // Inicia a animação de entrada (opacidade e escala)
+    Animated.timing(punchAnim, {
+      toValue: 1,
+      duration: 150,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.back(1.5)),
+    }).start(() => {
+      // Quando o soco "bate" (animação termina), trocamos a pergunta
+      callback();
+      
+      // Espera um pouquinho com o soco na tela e depois retira
+      setTimeout(() => {
+        Animated.timing(punchAnim, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: true,
+        }).start(() => {
+          setIsTransitioning(false);
+        });
+      }, 300); // Tempo que o GIF fica visível
     });
   };
 
   const handleNext = (key: string, value: string) => {
     if (isTransitioning) return;
-
     const updatedAnswers = { ...answers, [key]: value };
     setAnswers(updatedAnswers);
-
     runPunchAnimation(() => {
       setStep(step + 1);
     });
@@ -106,7 +100,7 @@ export default function Index() {
   };
 
   const getColorHex = (c: string) => {
-    const map: any = { 'Vermelho': '#FF3B30', 'Azul': '#007AFF', 'Amarelo': '#FFCC00', 'Preto': '#FFF', 'Roxo': '#AF52DE', 'Verde': '#4CD964' };
+    const map: any = { 'Vermelho': '#FF3B30', 'Azul': '#007AFF', 'Amarelo': '#FFCC00', 'Preto': '#666', 'Roxo': '#AF52DE', 'Verde': '#4CD964' };
     return map[c] || '#FFF';
   };
 
@@ -115,32 +109,30 @@ export default function Index() {
       return <Text style={[styles.title, { color: getColorHex(colors[0]) }]}>{name}</Text>;
     }
     const middle = Math.ceil(name.length / 2);
-    const firstHalf = name.substring(0, middle);
-    const secondHalf = name.substring(middle);
     return (
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
-        <Text style={[styles.title, { color: getColorHex(colors[0]) }]}>{firstHalf}</Text>
-        <Text style={[styles.title, { color: getColorHex(colors[1]) }]}>{secondHalf}</Text>
+        <Text style={[styles.title, { color: getColorHex(colors[0]) }]}>{name.substring(0, middle)}</Text>
+        <Text style={[styles.title, { color: getColorHex(colors[1]) }]}>{name.substring(middle)}</Text>
       </View>
     );
   };
 
-  // Componente do Soco
+  // Componente do Soco Otimizado
   const PunchOverlay = () => {
-    const opacity = punchAnim.interpolate({
-      inputRange: [0, 0.1, 0.9, 1],
-      outputRange: [0, 1, 1, 0],
-    });
-
-    const scale = punchAnim.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0.8, 1.2],
-    });
+    if (!isTransitioning) return null; // ISSO destrava os botões!
 
     return (
-      <Animated.View style={[styles.punchWrapper, { opacity, transform: [{ scale }] }]}>
+      <Animated.View 
+        style={[
+          styles.punchWrapper, 
+          { 
+            opacity: punchAnim,
+            transform: [{ scale: punchAnim.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1.2] }) }] 
+          }
+        ]}
+      >
         <Image 
-         source={require('./assets/luffy-punch.gif')}
+          source={require('./assets/luffy-punch.gif')}
           style={styles.punchGif} 
           resizeMode="contain" 
         />
@@ -175,15 +167,19 @@ export default function Index() {
     const current = questions[step - 1];
     return (
       <View style={styles.container}>
-        <PunchOverlay />
         <Text style={styles.question}>{current.q}</Text>
         <ScrollView style={{ width: '100%' }}>
           {current.options.map((opt: any) => (
-            <TouchableOpacity key={opt.t || opt} style={[styles.card, opt.c && { borderColor: getColorHex(opt.c) }]} onPress={() => handleNext(current.key, opt.c || opt)}>
+            <TouchableOpacity 
+                key={opt.t || opt} 
+                style={[styles.card, opt.c && { borderColor: getColorHex(opt.c) }]} 
+                onPress={() => handleNext(current.key, opt.c || opt)}
+            >
               <Text style={styles.cardText}>{opt.t || opt}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
+        <PunchOverlay />
       </View>
     );
   }
@@ -216,7 +212,7 @@ export default function Index() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121212', alignItems: 'center', justifyContent: 'center', padding: 20, paddingTop: 60, position: 'relative' },
+  container: { flex: 1, backgroundColor: '#121212', alignItems: 'center', justifyContent: 'center', padding: 20, paddingTop: 60 },
   splashContainer: { flex: 1, backgroundColor: '#ED1D24' }, 
   fullBtn: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   hatCircle: { width: 260, height: 260, backgroundColor: '#FFCC00', borderRadius: 130, justifyContent: 'center', alignItems: 'center', borderWidth: 8, borderColor: '#FFF', position: 'relative', overflow: 'hidden' },
@@ -224,8 +220,8 @@ const styles = StyleSheet.create({
   splashTitle: { color: '#000', fontSize: 32, fontWeight: 'bold' },
   splashSub: { color: '#000', fontWeight: 'bold', fontSize: 16 },
   touchText: { color: '#FFF', marginTop: 40, letterSpacing: 2, fontWeight: 'bold' },
-  question: { color: '#FFF', fontSize: 20, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
-  card: { backgroundColor: '#1E1E1E', width: '100%', padding: 15, borderRadius: 10, marginVertical: 6, borderWidth: 2 },
+  question: { color: '#FFF', fontSize: 22, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
+  card: { backgroundColor: '#1E1E1E', width: '100%', padding: 20, borderRadius: 12, marginVertical: 8, borderWidth: 2, borderColor: '#333' },
   cardText: { color: '#FFF', textAlign: 'center', fontSize: 18, fontWeight: 'bold' },
   title: { fontSize: 34, fontWeight: 'bold', textAlign: 'center', marginVertical: 5 },
   subtitle: { color: '#FFF', fontSize: 18, marginBottom: 5 },
@@ -237,7 +233,6 @@ const styles = StyleSheet.create({
   quote: { color: '#CCC', fontStyle: 'italic', textAlign: 'center' },
   btn: { backgroundColor: '#FFCC00', padding: 15, borderRadius: 30, marginTop: 25, width: 200, alignItems: 'center' },
   btnText: { fontWeight: 'bold', color: '#000' },
-  // Estilos da Animação
-  punchWrapper: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', zIndex: 999, backgroundColor: 'rgba(0,0,0,0.1)' },
-  punchGif: { width: width, height: height },
+  punchWrapper: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center', zIndex: 1000 },
+  punchGif: { width: width * 1.5, height: height * 1.5 },
 });
