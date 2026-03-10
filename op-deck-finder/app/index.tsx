@@ -140,7 +140,7 @@ export default function Index() {
     return (
       <Animated.View style={[styles.punchWrapper, { opacity, transform: [{ scale }] }]}>
         <Image 
-         source={require('../assets/luffy-punch.gif')} 
+         source={require('./../assets/luffy-punch.gif')}
           style={styles.punchGif} 
           resizeMode="contain" 
         />
