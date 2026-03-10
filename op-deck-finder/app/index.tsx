@@ -3,7 +3,7 @@ import { Animated, Dimensions, Easing, Image, ScrollView, StatusBar, StyleSheet,
 
 const { width, height } = Dimensions.get('window');
 
-// Banco de dados (Mantido igual)
+// Banco de dados
 const deckDatabase = [
   { name: 'Imu', colors: ['Preto'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Governo Mundial', game_stage: 'Late Game', codigo: 'OP13-079' },
   { name: 'Dracule Mihawk', colors: ['Verde'], strategy: 'Direto', stance: 'Ofensivo', length: 'Média', crew: 'Cross Guild', game_stage: 'Early Game', codigo: 'OP14-020' },
@@ -37,26 +37,28 @@ export default function Index() {
   const runPunchAnimation = (callback: () => void) => {
     setIsTransitioning(true);
     
-    // Inicia a animação de entrada (opacidade e escala)
+    // 1. Entrada do Soco
     Animated.timing(punchAnim, {
       toValue: 1,
       duration: 150,
       useNativeDriver: true,
-      easing: Easing.out(Easing.back(1.5)),
+      easing: Easing.out(Easing.back(1)),
     }).start(() => {
-      // Quando o soco "bate" (animação termina), trocamos a pergunta
-      callback();
-      
-      // Espera um pouquinho com o soco na tela e depois retira
+      // 2. Troca a pergunta quando o soco está no auge
       setTimeout(() => {
-        Animated.timing(punchAnim, {
-          toValue: 0,
-          duration: 150,
-          useNativeDriver: true,
-        }).start(() => {
-          setIsTransitioning(false);
-        });
-      }, 300); // Tempo que o GIF fica visível
+        callback();
+        
+        // 3. Deixa o GIF terminar de rodar (aumentado para evitar cortes)
+        setTimeout(() => {
+          Animated.timing(punchAnim, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }).start(() => {
+            setIsTransitioning(false);
+          });
+        }, 800); // Tempo total visível do GIF
+      }, 150); 
     });
   };
 
@@ -117,9 +119,9 @@ export default function Index() {
     );
   };
 
-  // Componente do Soco Otimizado
+  // Overlay com reinicialização forçada do GIF
   const PunchOverlay = () => {
-    if (!isTransitioning) return null; // ISSO destrava os botões!
+    if (!isTransitioning) return null;
 
     return (
       <Animated.View 
@@ -127,11 +129,17 @@ export default function Index() {
           styles.punchWrapper, 
           { 
             opacity: punchAnim,
-            transform: [{ scale: punchAnim.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1.2] }) }] 
+            transform: [{ 
+                scale: punchAnim.interpolate({ 
+                    inputRange: [0, 1], 
+                    outputRange: [0.8, 1.1] 
+                }) 
+            }] 
           }
         ]}
       >
         <Image 
+          key={`punch-frame-${step}`} // Muda a cada pergunta, forçando o GIF a reiniciar
           source={require('./assets/luffy-punch.gif')}
           style={styles.punchGif} 
           resizeMode="contain" 
@@ -233,6 +241,6 @@ const styles = StyleSheet.create({
   quote: { color: '#CCC', fontStyle: 'italic', textAlign: 'center' },
   btn: { backgroundColor: '#FFCC00', padding: 15, borderRadius: 30, marginTop: 25, width: 200, alignItems: 'center' },
   btnText: { fontWeight: 'bold', color: '#000' },
-  punchWrapper: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center', zIndex: 1000 },
-  punchGif: { width: width * 1.5, height: height * 1.5 },
+  punchWrapper: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center', zIndex: 1000, backgroundColor: 'rgba(0,0,0,0.4)' },
+  punchGif: { width: width * 0.9, height: height * 0.6 }, // Ajustado para evitar zoom feio
 });
