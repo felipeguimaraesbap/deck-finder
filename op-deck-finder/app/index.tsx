@@ -48,7 +48,7 @@ export default function Index() {
       setTimeout(() => {
         callback();
         
-        // 3. Deixa o GIF terminar de rodar (aumentado para evitar cortes)
+        // 3. Deixa o GIF terminar de rodar (fundo fica preto aqui)
         setTimeout(() => {
           Animated.timing(punchAnim, {
             toValue: 0,
@@ -57,7 +57,7 @@ export default function Index() {
           }).start(() => {
             setIsTransitioning(false);
           });
-        }, 800); // Tempo total visível do GIF
+        }, 800); 
       }, 150); 
     });
   };
@@ -119,7 +119,6 @@ export default function Index() {
     );
   };
 
-  // Overlay com reinicialização forçada do GIF
   const PunchOverlay = () => {
     if (!isTransitioning) return null;
 
@@ -139,7 +138,7 @@ export default function Index() {
         ]}
       >
         <Image 
-          key={`punch-frame-${step}`} // Muda a cada pergunta, forçando o GIF a reiniciar
+          key={`punch-frame-${step}`}
           source={require('./assets/luffy-punch.gif')}
           style={styles.punchGif} 
           resizeMode="contain" 
@@ -173,20 +172,26 @@ export default function Index() {
       { key: 'crew', q: '6. Tripulação Favorita:', options: ['Chapéus de Palha', 'Cross Guild', 'Piratas do Barba Branca', 'Piratas do Ruivo', 'Piratas do Roger', 'Governo Mundial', 'Piratas Heart', 'Outro'] }
     ];
     const current = questions[step - 1];
+
     return (
       <View style={styles.container}>
-        <Text style={styles.question}>{current.q}</Text>
-        <ScrollView style={{ width: '100%' }}>
-          {current.options.map((opt: any) => (
-            <TouchableOpacity 
-                key={opt.t || opt} 
-                style={[styles.card, opt.c && { borderColor: getColorHex(opt.c) }]} 
-                onPress={() => handleNext(current.key, opt.c || opt)}
-            >
-              <Text style={styles.cardText}>{opt.t || opt}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+        {/* Esconde as perguntas durante a transição */}
+        {!isTransitioning && (
+          <>
+            <Text style={styles.question}>{current.q}</Text>
+            <ScrollView style={{ width: '100%' }}>
+              {current.options.map((opt: any) => (
+                <TouchableOpacity 
+                    key={opt.t || opt} 
+                    style={[styles.card, opt.c && { borderColor: getColorHex(opt.c) }]} 
+                    onPress={() => handleNext(current.key, opt.c || opt)}
+                >
+                  <Text style={styles.cardText}>{opt.t || opt}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </>
+        )}
         <PunchOverlay />
       </View>
     );
@@ -200,11 +205,11 @@ export default function Index() {
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.subtitle}>Sua Cor Ideal: <Text style={{color: getColorHex(result.userColor), fontWeight: 'bold'}}>{result.userColor}</Text></Text>
         {renderSplitName(result.deck.name, result.deck.colors)}
-        <View style={styles.tagRow}>
+        <div style={styles.tagRow}>
            <Text style={styles.tag}>{result.deck.strategy}</Text>
            <Text style={styles.tag}>{result.deck.game_stage}</Text>
            <Text style={styles.tag}>{result.deck.crew}</Text>
-        </View>
+        </div>
         <View style={styles.imageShadow}>
           <Image source={{ uri: imageUrl }} style={styles.cardImg} resizeMode="contain" />
         </View>
@@ -241,6 +246,7 @@ const styles = StyleSheet.create({
   quote: { color: '#CCC', fontStyle: 'italic', textAlign: 'center' },
   btn: { backgroundColor: '#FFCC00', padding: 15, borderRadius: 30, marginTop: 25, width: 200, alignItems: 'center' },
   btnText: { fontWeight: 'bold', color: '#000' },
-  punchWrapper: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center', zIndex: 1000, backgroundColor: 'rgba(0,0,0,0.4)' },
-  punchGif: { width: width * 0.9, height: height * 0.6 }, // Ajustado para evitar zoom feio
+  // Fundo TOTALMENTE preto durante o soco para esconder a UI
+  punchWrapper: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center', zIndex: 1000, backgroundColor: '#000' },
+  punchGif: { width: width * 0.9, height: height * 0.6 },
 });
