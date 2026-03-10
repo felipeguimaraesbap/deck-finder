@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Dimensions, Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { Animated, Dimensions, Easing, Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
-// Banco de dados atualizado com os códigos que você conferiu
+// Banco de dados atualizado
 const deckDatabase = [
   { name: 'Imu', colors: ['Preto'], strategy: 'Combo', stance: 'Defensivo', length: 'Longa', crew: 'Governo Mundial', game_stage: 'Late Game', codigo: 'OP13-079' },
   { name: 'Dracule Mihawk', colors: ['Verde'], strategy: 'Direto', stance: 'Ofensivo', length: 'Média', crew: 'Cross Guild', game_stage: 'Early Game', codigo: 'OP14-020' },
@@ -31,10 +31,48 @@ const deckDatabase = [
 export default function Index() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<any>({});
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Referência para animação (0 = invisível, 1 = visível/impacto)
+  const punchAnim = useRef(new Animated.Value(0)).current;
+
+  const runPunchAnimation = (callback: () => void) => {
+    setIsTransitioning(true);
+
+    Animated.sequence([
+      // Impacto rápido
+      Animated.timing(punchAnim, {
+        toValue: 1,
+        duration: 120,
+        useNativeDriver: true,
+        easing: Easing.linear,
+      }),
+      // Frame do soco (delay curto)
+      Animated.delay(80),
+      // Troca os dados da pergunta por trás do soco
+      Animated.callback(() => {
+        callback();
+      }),
+      // Limpa a tela
+      Animated.timing(punchAnim, {
+        toValue: 0,
+        duration: 120,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setIsTransitioning(false);
+    });
+  };
 
   const handleNext = (key: string, value: string) => {
-    setAnswers({ ...answers, [key]: value });
-    setStep(step + 1);
+    if (isTransitioning) return;
+
+    const updatedAnswers = { ...answers, [key]: value };
+    setAnswers(updatedAnswers);
+
+    runPunchAnimation(() => {
+      setStep(step + 1);
+    });
   };
 
   const getWinner = () => {
@@ -87,6 +125,29 @@ export default function Index() {
     );
   };
 
+  // Componente do Soco
+  const PunchOverlay = () => {
+    const opacity = punchAnim.interpolate({
+      inputRange: [0, 0.1, 0.9, 1],
+      outputRange: [0, 1, 1, 0],
+    });
+
+    const scale = punchAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.8, 1.2],
+    });
+
+    return (
+      <Animated.View style={[styles.punchWrapper, { opacity, transform: [{ scale }] }]}>
+        <Image 
+          source={require('./assets/luffy-punch.gif')} 
+          style={styles.punchGif} 
+          resizeMode="contain" 
+        />
+      </Animated.View>
+    );
+  };
+
   if (step === 0) return (
     <View style={styles.splashContainer}>
       <StatusBar hidden />
@@ -114,6 +175,7 @@ export default function Index() {
     const current = questions[step - 1];
     return (
       <View style={styles.container}>
+        <PunchOverlay />
         <Text style={styles.question}>{current.q}</Text>
         <ScrollView style={{ width: '100%' }}>
           {current.options.map((opt: any) => (
@@ -128,34 +190,23 @@ export default function Index() {
 
   if (step === 7) {
     const result = getWinner();
-    // Montando a URL dinâmica com o link da Egman Events que conversamos
     const imageUrl = `https://deckbuilder.egmanevents.com/card_images/optcg/${result.deck.codigo}.webp`;
 
     return (
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.subtitle}>Sua Cor Ideal: <Text style={{color: getColorHex(result.userColor), fontWeight: 'bold'}}>{result.userColor}</Text></Text>
-        
         {renderSplitName(result.deck.name, result.deck.colors)}
-        
         <View style={styles.tagRow}>
            <Text style={styles.tag}>{result.deck.strategy}</Text>
            <Text style={styles.tag}>{result.deck.game_stage}</Text>
            <Text style={styles.tag}>{result.deck.crew}</Text>
         </View>
-
-        {/* EXIBIÇÃO DA IMAGEM ATUALIZADA */}
         <View style={styles.imageShadow}>
-          <Image 
-            source={{ uri: imageUrl }} 
-            style={styles.cardImg} 
-            resizeMode="contain" 
-          />
+          <Image source={{ uri: imageUrl }} style={styles.cardImg} resizeMode="contain" />
         </View>
-
         <View style={styles.quoteBox}>
           <Text style={styles.quote}>"O Rei dos Piratas é aquele que tem mais liberdade no mar!"</Text>
         </View>
-
         <TouchableOpacity style={styles.btn} onPress={() => setStep(0)}>
           <Text style={styles.btnText}>RECOMEÇAR</Text>
         </TouchableOpacity>
@@ -165,7 +216,7 @@ export default function Index() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121212', alignItems: 'center', justifyContent: 'center', padding: 20, paddingTop: 60 },
+  container: { flex: 1, backgroundColor: '#121212', alignItems: 'center', justifyContent: 'center', padding: 20, paddingTop: 60, position: 'relative' },
   splashContainer: { flex: 1, backgroundColor: '#ED1D24' }, 
   fullBtn: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   hatCircle: { width: 260, height: 260, backgroundColor: '#FFCC00', borderRadius: 130, justifyContent: 'center', alignItems: 'center', borderWidth: 8, borderColor: '#FFF', position: 'relative', overflow: 'hidden' },
@@ -180,16 +231,13 @@ const styles = StyleSheet.create({
   subtitle: { color: '#FFF', fontSize: 18, marginBottom: 5 },
   tagRow: { flexDirection: 'row', marginBottom: 15, flexWrap: 'wrap', justifyContent: 'center' },
   tag: { backgroundColor: '#333', color: '#FFCC00', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 5, marginHorizontal: 5, marginVertical: 2, fontSize: 12, fontWeight: 'bold' },
-  imageShadow: {
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
-  },
+  imageShadow: { elevation: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.5, shadowRadius: 10 },
   cardImg: { width: 240, height: 340, borderRadius: 12, marginBottom: 20 },
   quoteBox: { backgroundColor: '#222', padding: 15, borderRadius: 10, borderLeftWidth: 4, borderLeftColor: '#FFCC00', width: '100%' },
   quote: { color: '#CCC', fontStyle: 'italic', textAlign: 'center' },
   btn: { backgroundColor: '#FFCC00', padding: 15, borderRadius: 30, marginTop: 25, width: 200, alignItems: 'center' },
-  btnText: { fontWeight: 'bold', color: '#000' }
+  btnText: { fontWeight: 'bold', color: '#000' },
+  // Estilos da Animação
+  punchWrapper: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', zIndex: 999, backgroundColor: 'rgba(0,0,0,0.1)' },
+  punchGif: { width: width, height: height },
 });
