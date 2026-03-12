@@ -36,19 +36,14 @@ export default function Index() {
 
   const runPunchAnimation = (callback: () => void) => {
     setIsTransitioning(true);
-    
-    // 1. Entrada do Soco
     Animated.timing(punchAnim, {
       toValue: 1,
       duration: 150,
       useNativeDriver: true,
       easing: Easing.out(Easing.back(1)),
     }).start(() => {
-      // 2. Troca a pergunta quando o soco está no auge
       setTimeout(() => {
         callback();
-        
-        // 3. Deixa o GIF terminar de rodar (fundo fica preto aqui)
         setTimeout(() => {
           Animated.timing(punchAnim, {
             toValue: 0,
@@ -121,28 +116,9 @@ export default function Index() {
 
   const PunchOverlay = () => {
     if (!isTransitioning) return null;
-
     return (
-      <Animated.View 
-        style={[
-          styles.punchWrapper, 
-          { 
-            opacity: punchAnim,
-            transform: [{ 
-                scale: punchAnim.interpolate({ 
-                    inputRange: [0, 1], 
-                    outputRange: [0.8, 1.1] 
-                }) 
-            }] 
-          }
-        ]}
-      >
-        <Image 
-          key={`punch-frame-${step}`}
-          source={require('./assets/luffy-punch.gif')}
-          style={styles.punchGif} 
-          resizeMode="contain" 
-        />
+      <Animated.View style={[styles.punchWrapper, { opacity: punchAnim, transform: [{ scale: punchAnim.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1.1] }) }] }]}>
+        <Image key={`punch-frame-${step}`} source={require('./assets/luffy-punch.gif')} style={styles.punchGif} resizeMode="contain" />
       </Animated.View>
     );
   };
@@ -164,7 +140,18 @@ export default function Index() {
 
   if (step >= 1 && step <= 6) {
     const questions = [
-      { key: 'color1', q: '1. Escolha seu Arquétipo:', options: [{ t: 'Samurai', c: 'Vermelho' }, { t: 'Ninja', c: 'Azul' }, { t: 'Monge', c: 'Amarelo' }, { t: 'Yokai', c: 'Preto' }, { t: 'Sotoku', c: 'Roxo' }, { t: 'Tengu', c: 'Verde' }] },
+      { 
+        key: 'color1', 
+        q: '1. Escolha seu Arquétipo:', 
+        options: [
+          { t: 'Samurai', c: 'Vermelho', s: 'A melhor defesa é o ataque' }, 
+          { t: 'Ninja', c: 'Azul', s: 'Você não pode com as minhas armadilhas' }, 
+          { t: 'Monge', c: 'Amarelo', s: 'Vida é o recurso mais importante que temos' }, 
+          { t: 'Yokai', c: 'Preto', s: 'Nem a morte pode parar meus vassalos' }, 
+          { t: 'Xogum', c: 'Roxo', s: 'Não importa o caminho, importa a vitória' }, 
+          { t: 'Tengu', c: 'Verde', s: 'Tão importante quanto vencer é irritar o adversário' }
+        ] 
+      },
       { key: 'color2', q: '2. Qual sua personalidade?', options: [{ t: 'Agressivo', c: 'Vermelho' }, { t: 'Brincalhão', c: 'Azul' }, { t: 'Ambicioso', c: 'Amarelo' }, { t: 'Estrategista', c: 'Preto' }, { t: 'Dominador', c: 'Roxo' }, { t: 'Controlador', c: 'Verde' }] },
       { key: 'strategy', q: '3. Estratégia preferida:', options: ['Combo', 'Direto'] },
       { key: 'stance', q: '4. Postura de Jogo:', options: ['Ofensivo', 'Defensivo'] },
@@ -175,7 +162,6 @@ export default function Index() {
 
     return (
       <View style={styles.container}>
-        {/* Esconde as perguntas durante a transição */}
         {!isTransitioning && (
           <>
             <Text style={styles.question}>{current.q}</Text>
@@ -187,6 +173,7 @@ export default function Index() {
                     onPress={() => handleNext(current.key, opt.c || opt)}
                 >
                   <Text style={styles.cardText}>{opt.t || opt}</Text>
+                  {opt.s && <Text style={styles.cardSubText}>{opt.s}</Text>}
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -205,11 +192,11 @@ export default function Index() {
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.subtitle}>Sua Cor Ideal: <Text style={{color: getColorHex(result.userColor), fontWeight: 'bold'}}>{result.userColor}</Text></Text>
         {renderSplitName(result.deck.name, result.deck.colors)}
-        <div style={styles.tagRow}>
+        <View style={styles.tagRow}>
            <Text style={styles.tag}>{result.deck.strategy}</Text>
            <Text style={styles.tag}>{result.deck.game_stage}</Text>
            <Text style={styles.tag}>{result.deck.crew}</Text>
-        </div>
+        </View>
         <View style={styles.imageShadow}>
           <Image source={{ uri: imageUrl }} style={styles.cardImg} resizeMode="contain" />
         </View>
@@ -236,6 +223,7 @@ const styles = StyleSheet.create({
   question: { color: '#FFF', fontSize: 22, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
   card: { backgroundColor: '#1E1E1E', width: '100%', padding: 20, borderRadius: 12, marginVertical: 8, borderWidth: 2, borderColor: '#333' },
   cardText: { color: '#FFF', textAlign: 'center', fontSize: 18, fontWeight: 'bold' },
+  cardSubText: { color: '#AAA', textAlign: 'center', fontSize: 12, marginTop: 4, fontStyle: 'italic' },
   title: { fontSize: 34, fontWeight: 'bold', textAlign: 'center', marginVertical: 5 },
   subtitle: { color: '#FFF', fontSize: 18, marginBottom: 5 },
   tagRow: { flexDirection: 'row', marginBottom: 15, flexWrap: 'wrap', justifyContent: 'center' },
@@ -246,7 +234,6 @@ const styles = StyleSheet.create({
   quote: { color: '#CCC', fontStyle: 'italic', textAlign: 'center' },
   btn: { backgroundColor: '#FFCC00', padding: 15, borderRadius: 30, marginTop: 25, width: 200, alignItems: 'center' },
   btnText: { fontWeight: 'bold', color: '#000' },
-  // Fundo TOTALMENTE preto durante o soco para esconder a UI
   punchWrapper: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center', zIndex: 1000, backgroundColor: '#000' },
   punchGif: { width: width * 0.9, height: height * 0.6 },
 });
